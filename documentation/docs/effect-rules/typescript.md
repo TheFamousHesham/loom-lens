@@ -30,6 +30,10 @@ Same as Python: `definite`, `probable`, `possible`.
   - `firebase`, `@firebase/*`: database/storage/auth methods
   - `pg`, `mysql`, `mysql2`, `mongodb`, `redis`, `ioredis`: connection and query methods
   - `kafkajs`: producer/consumer methods
+  - tRPC: `@trpc/client` (`createTRPCClient`, `createTRPCProxyClient`, mutations and queries)
+  - GraphQL clients: `@apollo/client`, `urql`, `graphql-request`, `@tanstack/react-query` when paired with a fetch wrapper
+  - Server-side data fetchers in framework code: Next.js `fetch` inside `getServerSideProps` / Server Components / `"use server"` actions, Remix `loader`/`action` functions
+  - `@grpc/grpc-js` (gRPC over HTTP/2)
 - `new XMLHttpRequest()`.
 - `new WebSocket(...)`.
 - `new EventSource(...)`.
@@ -55,9 +59,11 @@ Same as Python: `definite`, `probable`, `possible`.
 - `console.log`, `console.warn`, `console.error`, `console.info`, `console.debug` (writes to stdout/stderr).
 - `process.stdout.write`, `process.stderr.write`.
 - `child_process.*`: `exec`, `execSync`, `spawn`, `spawnSync`, `fork` (also Foreign).
-- `localStorage.setItem`, `localStorage.removeItem`, `sessionStorage.*` (browser).
-- `indexedDB.*` (browser).
+- `localStorage.setItem`, `localStorage.removeItem`, `localStorage.clear`, `sessionStorage.*` (browser).
+- `indexedDB.*` and wrappers (`idb`, `dexie`, `localforage`) (browser).
 - `document.cookie = ...` (browser).
+- File System Access API: `showSaveFilePicker`, `showOpenFilePicker`, `showDirectoryPicker` (Chromium browsers).
+- Origin Private File System: `navigator.storage.getDirectory()` and methods on the returned handles.
 
 ### Probable
 - Method calls on objects typed as `WriteStream`, `ReadStream`, `FileHandle`.

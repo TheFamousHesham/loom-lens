@@ -1,0 +1,14 @@
+[package]
+name = "sample-repo"
+version = "0.0.0"
+edition = "2021"
+publish = false
+description = "Loom Lens fixture: Rust effect-inference test repo. Parsed by Tree-sitter, NOT compiled — third-party crates (reqwest, tokio, sqlx, etc.) are referenced via `use` for pattern detection without being declared as build dependencies."
+
+[lib]
+path = "src/lib.rs"
+
+# Intentionally empty [dependencies]: we exercise external-crate name detection
+# via `use` paths, which Tree-sitter sees in source. cargo build is not part of
+# the fixture's purpose; cargo check would fail by design.
+[dependencies]

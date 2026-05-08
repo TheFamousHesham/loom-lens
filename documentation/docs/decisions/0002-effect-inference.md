@@ -53,3 +53,16 @@ Loom Lens is a 4-week project. Sound analysis is out of scope. The question is w
 
 - Why heuristic effect analysis is useful even though unsound: discussion in any paper on "lightweight verification."
 - Existing tools with similar approaches: SonarQube (security hotspots, not formally sound), CodeQL (more rigorous but configurable), various IDE inspectors.
+
+## Refinements at Checkpoint 1
+
+The 9-effect taxonomy stands. The following operational details were nailed down so M2 can be implemented without re-litigating them:
+
+- **Effect set, locked.** `Pure`, `Net`, `IO`, `Mut`, `Throw`, `Async`, `Random`, `Time`, `Foreign`. Pure is the *absence* of evidence, not a positive claim — we do not infer purity, we infer the absence of detectable impurity. UI surfaces this distinction in tooltips ("no detected effects" rather than "pure").
+- **`Result`/`Option` is *not* an effect.** In Rust, returning `Result<T, E>` is not flagged as `Throw`; only paths that can `panic!`/`unwrap` are. The earlier note in `documentation/docs/effect-rules/rust.md` ("Decision pending in this ADR") is hereby decided: **`Result`-returning is a control-flow shape, not an effect.** Functions that propagate errors via `?` inherit `Throw` only if a callee can panic.
+- **Effect aggregation rule.** A function carries the *union* of its body's detected effects and (for direct intra-repo calls) the union of its callees' effects. Confidence aggregation: when multiple matches imply the same effect, the strongest confidence wins (definite > probable > possible). When transitively inherited, confidence is one level weaker than the source (definite-in-callee → probable-on-caller, probable-in-callee → possible-on-caller). This keeps transitive labeling honest about the loss of precision.
+- **Recursion / SCCs.** For mutually-recursive call cycles, compute effects on the strongly-connected component as a fixpoint: every node in the SCC gets the union of effects of every node in the SCC. This is the standard approach and avoids order-dependence.
+- **`External` tag is its own dimension.** Calls into external libraries are marked `External` *in addition to* whatever effects we can attribute. `External` is a provenance tag on the edge, not a member of the effect set itself. The UI offers a per-effect filter "include external calls?" defaulting off.
+- **Confidence-level UI mapping, locked.** `definite` → solid color, `probable` → diagonal-stripe pattern, `possible` → outline only. This is the contract; viewer-mockup.md depicts it.
+- **Adding/removing effects is itself an architectural change.** New language support may need to extend the rule set (e.g., Go `goroutine` for Async); but introducing a new effect category (e.g., `Crypto`, `IPC`) requires an amendment to this ADR or a superseding one.
+- **Per-language rules are normative, not advisory.** `documentation/docs/effect-rules/{python,typescript,rust}.md` define what the implementation does. When the implementation diverges, fix the implementation. Rule additions go in the document, then in the code.

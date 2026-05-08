@@ -25,7 +25,7 @@ This is not bureaucracy; it's because the development cadence is unusual and we 
 ## What we welcome
 
 - **Bug reports** with clear reproduction steps.
-- **New language support** following the pattern in `docs/effect-rules/` (write the rules document; the implementation can come later).
+- **New language support** following the pattern in `documentation/docs/effect-rules/` (write the rules document; the implementation can come later).
 - **Effect rule improvements** for existing languages — false positives and false negatives are bugs, please report them with the offending code snippet.
 - **Documentation improvements**, especially examples and screenshots.
 - **Frontend improvements** to the viewer if you have UX expertise.
@@ -33,7 +33,7 @@ This is not bureaucracy; it's because the development cadence is unusual and we 
 
 ## What we don't currently want
 
-- Large feature additions outside the v0.1 roadmap (see `CHECKPOINTS.md`).
+- Large feature additions outside the v0.1 roadmap (see `documentation/CHECKPOINTS.md`).
 - Style/formatting-only PRs.
 - Cosmetic README changes.
 - Build system overhauls.

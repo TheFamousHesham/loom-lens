@@ -29,9 +29,10 @@ This is a living document. False positives and false negatives reported via GitH
   - `socket`: `socket()`, `create_connection`, `gethostbyname`
   - `ftplib`, `smtplib`, `poplib`, `imaplib`, `telnetlib`, `nntplib`
   - `boto3`, `botocore` (any client method that isn't local)
-  - `redis`, `pymongo`, `psycopg2`, `psycopg`, `mysql.connector`, `pymysql` (database calls = network in our taxonomy)
-  - `kafka`, `confluent_kafka`
-  - `paramiko` (SSH)
+  - `redis`, `pymongo`, `psycopg2`, `psycopg`, `asyncpg`, `mysql.connector`, `pymysql`, `mysql.aio` (database calls = network in our taxonomy)
+  - `kafka`, `confluent_kafka`, `aiokafka`
+  - `paramiko`, `asyncssh` (SSH)
+  - `grpc`, `grpcio` (gRPC)
 - `__import__('socket')` etc. (dynamic import of network modules)
 
 ### Probable
@@ -54,8 +55,10 @@ This is a living document. False positives and false negatives reported via GitH
 - `shutil.copy*`, `shutil.move`, `shutil.rmtree`, `shutil.make_archive`.
 - `tempfile.NamedTemporaryFile`, `tempfile.mkstemp` (IO; non-Mut intermediate).
 - Logging calls that go to a file handler. (Heuristic: any `logger.info`/`warning`/`error` call. Always tagged with `probable` not `definite` since logging may be in-memory.)
-- `print(...)` (writes to stdout — IO).
+- `print(...)` (writes to stdout — IO). `print(..., file=...)` is also IO.
 - `sys.stdout.write`, `sys.stderr.write`.
+- `input(...)`, `sys.stdin.read`, `sys.stdin.readline` (reading stdin — IO).
+- Disk-backed serialization round-trips: `marshal.load`, `shelve.open`, `dbm.open`, and the file-reading variants of the standard `pickle` module (used for deserialization from a path/file). These are detected as IO regardless of any orthogonal security concerns.
 
 ### Probable
 - `open(...)` for read modes (`'r'`, `'rb'`) — read is also IO in our taxonomy.
@@ -95,7 +98,8 @@ This is a living document. False positives and false negatives reported via GitH
 
 ### Probable
 - Calls to functions whose docstring mentions "raises" or "throws".
-- Built-in functions known to raise: `int(...)` on non-numeric, `dict[key]` access, `list[i]` access, `assert ...`.
+- Built-in functions known to raise: `int(...)` on non-numeric, `dict[key]` access, `list[i]` access.
+- `assert ...` statements (raise `AssertionError` when the condition is falsy and `python -O` is not in effect).
 
 ### Possible
 - Function name starts with `validate_`, `check_`, `assert_`, `require_`, `ensure_`.

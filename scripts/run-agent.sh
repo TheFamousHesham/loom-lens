@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-LOOM_LENS_ROOT="${LOOM_LENS_ROOT:-/opt/loom-lens}"
+LOOM_LENS_ROOT="${LOOM_LENS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "$LOOM_LENS_ROOT"
 
 if [[ -f .env ]]; then

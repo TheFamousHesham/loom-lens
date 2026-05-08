@@ -56,3 +56,15 @@ Windows binaries deferred to v0.2 unless real demand emerges.
 - esbuild's npm-wraps-binary pattern: https://esbuild.github.io/getting-started/#install-the-binary-executable
 - npm provenance: https://docs.npmjs.com/generating-provenance-statements
 - Homebrew tap docs: https://docs.brew.sh/Taps
+
+## Refinements at Checkpoint 1
+
+- **Conflict surfaced — crates.io name reservation.** The original draft says: *"register the `loom-lens` name on crates.io at Checkpoint 1 with a placeholder, before anyone else can."* This conflicts with the security rule in `CLAUDE.md` §6: *"Never publish to npm or crates.io without explicit user approval in chat."* A placeholder publish is still a publish.
+
+  **Resolution:** the registration is **deferred to a user-approved action**, not auto-executed at Checkpoint 1. The user can: (a) register the placeholder manually now, (b) authorize the agent to run a one-time `cargo publish` of a 0.0.1 placeholder, or (c) accept the squat risk and register at v0.1.0 release. Same logic applies to the npm package name `loom-lens`. **The agent will not pre-register either name without explicit chat approval.**
+
+- **Linux ARM64 added to the binary matrix.** `aarch64-unknown-linux-gnu` should be added to the release workflow alongside `x86_64-unknown-linux-gnu` for the increasingly common Graviton/RPi/Ampere user base. Cost: one matrix entry in `.github/workflows/release.yml`. Defer to M4 polish; not blocking.
+- **Windows: still deferred.** No movement.
+- **Binary integrity.** The release workflow will produce a `loom-lens-<target>.tar.gz` *and* a sibling `.tar.gz.sha256` file per target. The npm wrapper verifies the SHA-256 before extracting. Adds ~5 lines to the release workflow at M4. **Sigstore / cosign signing is deferred** — checksums are sufficient for v0.1; signing is a v0.2 hardening item that warrants its own ADR.
+- **The Homebrew tap repository (`thefamoushesham/homebrew-tap`) is not yet created.** Creating it is a public action and falls in the same bucket as creating the main repo: deferred to user approval at the Checkpoint 1 review. Until then, the README's `brew install` line is aspirational.
+- **MCP registry submission is M4 polish, not Checkpoint 1.** Listed in CHECKPOINTS.md as "optional" at M4. Confirmed.

@@ -56,3 +56,13 @@ Constraints:
 - rust-embed: https://crates.io/crates/rust-embed
 - Tree-sitter Rust bindings: https://crates.io/crates/tree-sitter
 - Anthropic MCP spec: https://modelcontextprotocol.io/
+
+## Refinements at Checkpoint 1
+
+The original draft is sound; no part of the decision is reversed. The following clarifications were resolved or surfaced during the Checkpoint 1 review of cross-document consistency:
+
+- **Toolchain pins are now concrete.** `mise.toml` pins Rust 1.85.0, Node 22.11.0, pnpm 9.15.0, plus `cargo-nextest`, `cargo-audit`, `cargo-deny`, `sccache`. Rust 1.85.0 ships the 2024 edition; we adopt it for new crates. Bumping any of these is itself an architectural change and warrants a new ADR or an amendment here.
+- **MCP Rust SDK choice is deferred to M1 implementation.** The ADR's risk note still applies. M1 will pick between (a) the official Anthropic Rust MCP SDK if available and stable, (b) the community `rmcp` crate, or (c) a hand-rolled JSON-RPC-over-stdio implementation. Whichever is chosen, the choice will be recorded as an amendment to this ADR rather than as a new ADR — it's an implementation detail of the same decision.
+- **Cytoscape version family.** We target Cytoscape.js 3.x (the current major). The performance budget — render 10k visible nodes without dropped frames on a mid-tier laptop — is a M2 acceptance criterion; if Cytoscape can't hit it, we revisit (Reagraph or Sigma.js) and supersede this ADR. Until then, Cytoscape remains the choice.
+- **Frontend embedding mechanics.** The frontend is built into `frontend/dist/` and embedded via `rust-embed` into the `viewer` crate. `frontend/dist/` is gitignored; the binary build pipeline (and the release workflow) runs `pnpm build` before `cargo build --release`. CI builds confirm this every push.
+- **Multi-language repos.** The parser is invoked per-file; a repo with Python *and* TypeScript produces a single graph with nodes from both languages and inter-language calls only when they cross via FFI/IPC (which we tag `Foreign`). No design change needed; called out here so it isn't relitigated.

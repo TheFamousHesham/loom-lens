@@ -29,6 +29,7 @@ Same: `definite`, `probable`, `possible`.
   - `aws-sdk-*` (any AWS SDK crate)
   - `redis`, `mongodb`, `tokio-postgres`, `sqlx::postgres::*`, `sqlx::mysql::*`, `mysql_async` — database clients (Net in our taxonomy)
   - `lapin` (AMQP), `rdkafka`
+  - `tonic` (gRPC client/server), `tarpc` (RPC), `grpcio`
 
 ### Probable
 - Calls on values of type `&Client`, `&mut Client`, `Connection`, `Stream` from any imported crate.
@@ -81,8 +82,8 @@ Same: `definite`, `probable`, `possible`.
 
 In Rust, "throw" maps to `panic!`, `unwrap`/`expect` failures, and to `?` propagation of `Result::Err`. We tag these distinctly:
 
-- `Throw` = could panic
-- `Result` types are tracked as a separate concept (`Fallible`?) — we may or may not include this in the effect taxonomy. **Decision pending in this ADR; default to including `Result`-returning as a non-effect for now and revisit if users want it.**
+- `Throw` = could panic.
+- `Result<T, E>`-returning is **not** an effect. Per ADR 0002 (Refinements at Checkpoint 1), returning `Result` is a control-flow shape, not an effect. A function that propagates errors via `?` inherits `Throw` only if a callee can panic.
 
 ### Definite (panic)
 - Body contains `panic!`, `unreachable!`, `unimplemented!`, `todo!`.

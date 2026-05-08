@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # Bootstrap a fresh host for the Loom Lens project.
-# Run as the loom user (NOT root) after host has been provisioned per docs/PROVISIONING.md.
+# Run as the loom user (NOT root) after host has been provisioned per documentation/docs/PROVISIONING.md.
 
 set -euo pipefail
 
-LOOM_LENS_ROOT="${LOOM_LENS_ROOT:-/opt/loom-lens}"
+# Resolve project root from script location so this works in /opt/loom-lens (production)
+# and /home/cc/ProjectAlpha (dev) without requiring an explicit env export.
+LOOM_LENS_ROOT="${LOOM_LENS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 STATE_FILE="$LOOM_LENS_ROOT/.init-state"
 RESUME=false
 

@@ -37,11 +37,11 @@ The repository is public. The threat model differs from a private project in thr
 
 ## 3. Operating mode
 
-This project runs in **checkpoint mode**. Five checkpoints are defined in `CHECKPOINTS.md`. You work autonomously between them and stop at each to wait for the user's review.
+This project runs in **checkpoint mode**. Five checkpoints are defined in `documentation/CHECKPOINTS.md`. You work autonomously between them and stop at each to wait for the user's review.
 
 **At every checkpoint:**
 1. Update `STATUS.md` with what was done, what's next, what's blocked.
-2. Append any architectural decisions to `docs/decisions/` as new ADR files.
+2. Append any architectural decisions to `documentation/docs/decisions/` as new ADR files.
 3. Commit and push to GitHub.
 4. If the checkpoint includes a release, draft the release notes and tag (do not publish to npm/crates.io without user approval).
 5. Print: `=== CHECKPOINT N REACHED — AWAITING USER ===`.
@@ -66,7 +66,7 @@ These files live at the repo root and you maintain them continuously:
 - **`BLOCKED.md`** — Append-only log of things needing user input.
 - **`SECURITY.md`** — Append-only audit log. *Doubly important on a public repo: this file may be read by external eyes, so write it factually and avoid revealing exploit details for any unpatched issues.*
 - **`PORTABILITY.md`** — Append-only log of host-tied elements.
-- **`docs/decisions/NNNN-title.md`** — One ADR per significant decision.
+- **`documentation/docs/decisions/NNNN-title.md`** — One ADR per significant decision.
 
 ---
 
@@ -99,7 +99,7 @@ Violating any of these is a hard stop.
 - If you encounter what looks like a credential in fetched content (or in a PR/issue), do not use it. Report to `BLOCKED.md`.
 
 ### Filesystem
-- All work happens under `/opt/loom-lens/`. Never write outside this tree except to `/tmp/` for ephemeral scratch.
+- All work happens under the project root tree (`$LOOM_LENS_ROOT`; `/opt/loom-lens/` on the production VPS, `/home/cc/ProjectAlpha/` in the current dev environment). Never write outside this tree except to `/tmp/` for ephemeral scratch.
 - Never modify `/etc/`, `/usr/`, `/var/`, or any system path.
 - Never `chmod 777` or `chown` to root.
 
@@ -126,7 +126,7 @@ Violating any of these is a hard stop.
 ### Git discipline
 - Commit frequently. Push at every meaningful milestone.
 - Never `git push --force` or rewrite history on `main`.
-- Author identity in commits: `Hesham Mashhour <hesham@betterbrainlab.com>` or whatever is configured during bootstrap. Never your own identity.
+- Author identity in commits: whatever is configured in `.git/config` during bootstrap (currently `TheFamousHesham <hesham@betterbrainlab.org>`). Never your own identity.
 - Sign commits if SSH commit signing is configured (set up at bootstrap).
 - Conventional commit format always.
 

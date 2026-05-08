@@ -1,0 +1,10 @@
+{
+  "name": "sample-repo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Loom Lens fixture: TypeScript effect-inference test repo. Not a real package.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  }
+}

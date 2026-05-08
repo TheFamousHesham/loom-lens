@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-LOOM_LENS_ROOT="${LOOM_LENS_ROOT:-/opt/loom-lens}"
+LOOM_LENS_ROOT="${LOOM_LENS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SNAPSHOT_DIR="$LOOM_LENS_ROOT/data/snapshots"
 TIMESTAMP="$(date -u +%Y%m%d-%H%M%S)"
 SNAPSHOT_NAME="loom-lens-snapshot-${TIMESTAMP}.tar.gz"

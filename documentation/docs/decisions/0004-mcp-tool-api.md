@@ -163,3 +163,16 @@ Given two refs (commits, branches, or working tree), returns which functions cha
 
 - MCP tool spec: https://modelcontextprotocol.io/specification#tools
 - Anthropic guidance on tool design: https://docs.anthropic.com/en/docs/build-with-claude/tool-use
+
+## Refinements at Checkpoint 1
+
+The four-tool surface stands. Refinements concern the *shape* of inputs/outputs, error semantics, and the `graph_id` lifecycle — implementation details that need locking before M2 wires the agent against this contract.
+
+- **`graph_id` lifecycle, locked.** A `graph_id` returned by `analyze_repo` is a content-addressed handle: `blake3(canonical_repo_root_path || sorted_file_blake3s)`, truncated to 12 hex chars for readability. Re-analyzing the same repo at the same commit produces the same `graph_id`. A modified repo produces a different `graph_id`. This is idempotent and cacheable. The viewer holds graphs in memory, with an LRU eviction at 8 graphs (~1 GB headroom). `query_graph` against an evicted `graph_id` returns error `1001` and the agent reanalyzes.
+- **Per-tool "when not to use" descriptions.** Tool descriptions in the MCP server include both "use when …" *and* "do not use when …" hints, since negative guidance reduces miscalls more than positive guidance alone. Concrete suggested wording lives in `documentation/docs/api.md`.
+- **`query_graph` query kinds, locked.** The seven kinds (`functions_with_effect`, `duplicates_of`, `callers_of`, `callees_of`, `dependents_of_file`, `cycle_detection`, `unreachable_functions`) cover the use cases enumerated in Context. Adding a new kind is non-breaking (it appears in the enum); removing one is breaking (major version bump). `min_confidence` defaults to `possible` (most permissive) since the agent typically wants the broadest results and filters client-side.
+- **`compare_hashes` working-tree semantics.** The literal string `"WORKING_TREE"` is reserved as a magic ref meaning "uncommitted state on disk." This is the only non-git ref. All other strings are passed to `git rev-parse` and must resolve to a commit.
+- **Error code reserved range.** Error codes `1000-1099` are reserved for analysis errors (repo/path issues), `2000-2099` for graph-query errors, `3000-3099` for git/version errors. Within those bands, codes are stable across versions (we don't reuse a retired code for a new meaning).
+- **Streaming deferred, but confirmed plausible.** v0.1 returns full results. Streaming (server-sent JSON-RPC notifications) is a v0.2 optimization for `query_graph` results > 1000 entries. The API surface today does not foreclose it.
+- **Result size cap.** `query_graph` results are capped at 5000 entries by default with a `limit` parameter to override. Exceeding the cap returns the first `limit` entries plus a `truncated: true` flag, never silently discards.
+- **No fifth tool.** The temptation at M3 to add (e.g.) `summarize_module` or `find_pattern` is real and should be resisted unless the existing four genuinely cannot serve the use case. If a fifth is genuinely needed, it gets its own ADR.

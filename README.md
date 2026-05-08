@@ -89,7 +89,7 @@ loom-lens analyze .
 - Provide *sound* effect analysis. Effects are heuristic and can have false positives or negatives. Treat as a guide, not a guarantee.
 - Edit code. Loom Lens is read-only — open the linked file in your editor to make changes.
 - Replace your IDE or LSP. It's a complementary lens.
-- Work on languages other than Python, TypeScript, and Rust at launch. Adding more is straightforward (Tree-sitter does the heavy lifting); see `docs/effect-rules/` for the per-language file structure.
+- Work on languages other than Python, TypeScript, and Rust at launch. Adding more is straightforward (Tree-sitter does the heavy lifting); see `documentation/docs/effect-rules/` for the per-language file structure.
 
 ---
 
@@ -101,7 +101,7 @@ A single Rust binary that:
 3. Serves an HTTP viewer on `localhost:7000`.
 4. Embeds the React/Cytoscape frontend.
 
-See `ARCHITECTURE.md` for design rationale.
+See `documentation/ARCHITECTURE.md` for design rationale.
 
 ---
 
@@ -114,7 +114,7 @@ See `ARCHITECTURE.md` for design rationale.
 | **M3** | Week 3 | Hash mode, Git history, polished agent integration |
 | **M4** | Week 4 | Docs, demo, npm/cargo publish, public release |
 
-See `CHECKPOINTS.md` for the detailed checkpoint list.
+See `documentation/CHECKPOINTS.md` for the detailed checkpoint list.
 
 ---
 

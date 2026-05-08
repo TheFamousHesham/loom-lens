@@ -25,7 +25,7 @@ if [[ $# -ne 1 ]]; then
 fi
 
 TARGET="$1"
-LOOM_LENS_ROOT="${LOOM_LENS_ROOT:-/opt/loom-lens}"
+LOOM_LENS_ROOT="${LOOM_LENS_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 echo "=== Loom Migration ==="
 echo "Source: $LOOM_LENS_ROOT (this host)"

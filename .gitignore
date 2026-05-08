@@ -55,6 +55,13 @@ desktop.ini
 # Logs
 *.log
 logs/
+.logs/
+
+# Agent session state (Claude Code)
+.remember/
+
+# init.sh state file
+.init-state
 
 # Coverage
 coverage/
