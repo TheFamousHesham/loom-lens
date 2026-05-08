@@ -46,6 +46,12 @@ ALLOWED_HOSTS=(
     "deb.debian.org"
     "esm.ubuntu.com"
 
+    # System packages (Rocky / RHEL-likes / EPEL)
+    "mirrors.rockylinux.org"
+    "download.rockylinux.org"
+    "dl.fedoraproject.org"
+    "mirrors.fedoraproject.org"
+
     # Add backup target if set in environment.
 )
 

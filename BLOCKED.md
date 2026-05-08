@@ -47,4 +47,15 @@ Do not delete entries. Mark as `resolved` and append the resolution.
 2. Confirmation that the Anthropic API key has a hard spend cap configured in the console.
 3. For M1+: provision per `documentation/docs/PROVISIONING.md` on the target VPS, or tell me to install `mise` etc. into this dev workstation tree.
 
-**Resolution:** (pending)
+**Resolution (2026-05-08, in-session):**
+- **GitHub repo creation** — RESOLVED. User authorized `gh repo create`. Repo created at https://github.com/TheFamousHesham/loom-lens (public, no LICENSE override since one was already in the source). The Checkpoint 1 commit is pushed; default branch is `main`.
+- **mise install on this dev workstation** — RESOLVED. mise v2026.5.3 installed at `~/.local/share/mise/`, symlinked into `~/.local/bin/mise`, activated from `~/.bashrc`. The project's `mise.toml` is trusted; `mise list` shows the 8 pinned tools as "missing" until `mise install` runs (deferred — the actual toolchain download is ~700 MB plus cargo-tool compile time, kicked off by the user when convenient).
+- **`.env` populated and locked** — RESOLVED. Created from `.env.example`, set to mode 600, gitignored. Placeholders filled in for this dev environment: project root, deploy key path (using the user's `~/.ssh/id_ed25519` rather than a separate per-repo deploy key, which is appropriate for dev), git author identity. ANTHROPIC_API_KEY filled in (see next item).
+- **Anthropic auth** — RESOLVED for the key, OPEN for the spend cap. The user is on the Max 200 plan; for the headless agent loop they generated a project-scoped API key, which is now in `.env` and confirmed working against `/v1/models` (HTTP 200, latest model list returned). The key was sent via chat — recommend rotating it after the project is up to keep live credentials out of the local Claude Code transcript. **Spend cap of $10 is not yet set; that's a console-only action (Settings → Billing → Usage limits at console.anthropic.com).**
+- **nftables egress allowlist** — IN PROGRESS. User chose to apply with extensions (Rocky/EPEL mirrors). Updated `nftables/egress.nft` and `scripts/refresh-egress.sh` to add `mirrors.rockylinux.org`, `download.rockylinux.org`, `dl.fedoraproject.org`, `mirrors.fedoraproject.org` so `dnf` keeps working on this box. **Not yet applied at the kernel level.** Final go-ahead pending (separate AskUserQuestion below) since the apply step is sudo+disruptive: anything not on the allowlist (general web browsing, third-party Slack/Discord/Gmail clients, etc.) will start failing the moment the rules load.
+
+## Still open after this round
+
+- **Anthropic spend cap of $10.** User to set in console; agent cannot.
+- **API key rotation** (recommended, not required). User can revoke and reissue at any point; update `.env`, no code change needed.
+- **Production VPS provisioning** (`documentation/docs/PROVISIONING.md`). The dev workstation work above does not replace the production hardening; M3/M4 deploy still needs a dedicated VPS.
