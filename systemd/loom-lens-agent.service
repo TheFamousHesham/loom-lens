@@ -1,0 +1,63 @@
+# Loom Lens agent systemd unit
+# Install: sudo cp loom-lens-agent.service /etc/systemd/system/
+# Enable:  sudo systemctl enable loom-lens-agent
+# Start:   sudo systemctl start loom-lens-agent
+
+[Unit]
+Description=Loom Lens Project Claude Code Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=loom
+Group=loom
+WorkingDirectory=/opt/loom-lens
+
+EnvironmentFile=/opt/loom-lens/.env
+Environment="HOME=/home/loom"
+Environment="PATH=/home/loom/.local/share/mise/shims:/home/loom/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
+
+ExecStart=/opt/loom-lens/scripts/run-agent.sh
+
+# Restart on crash, NOT on clean exit (clean exit = checkpoint).
+Restart=on-failure
+RestartSec=30
+StartLimitBurst=3
+StartLimitIntervalSec=600
+
+# Resource limits.
+MemoryMax=14G
+MemoryHigh=12G
+TasksMax=4096
+CPUQuota=380%
+
+# Filesystem hardening.
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/opt/loom-lens /home/loom/.cache /home/loom/.local /home/loom/.cargo /home/loom/.rustup /tmp
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+NoNewPrivileges=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ProtectClock=true
+ProtectHostname=true
+ProtectKernelLogs=true
+
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+RestrictNamespaces=true
+
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources @mount @swap @reboot @raw-io
+
+OOMScoreAdjust=500
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

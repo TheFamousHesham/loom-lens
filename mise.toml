@@ -1,0 +1,19 @@
+[tools]
+rust = "1.85.0"
+node = "22.11.0"
+"npm:pnpm" = "9.15.0"
+
+# Tools
+"cargo:cargo-nextest" = "latest"
+"cargo:cargo-audit" = "latest"
+"cargo:cargo-deny" = "latest"
+"cargo:cargo-watch" = "latest"
+"cargo:sccache" = "latest"
+
+[env]
+CARGO_INSTALL_ROOT = "{{config_root}}/.cargo-bin"
+CARGO_HOME = "{{config_root}}/.cargo"
+RUSTC_WRAPPER = "sccache"
+SCCACHE_DIR = "{{config_root}}/.sccache"
+
+# Pinned at bootstrap. Do not modify without an ADR.

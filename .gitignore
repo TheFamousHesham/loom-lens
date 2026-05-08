@@ -1,0 +1,71 @@
+# Secrets — NEVER commit
+.env
+.env.local
+.env.production
+*.key
+*.pem
+*.p12
+*.pfx
+*credentials*
+**/secrets/
+
+# Rust
+target/
+**/*.rs.bk
+*.pdb
+
+# Cargo
+.cargo/
+.cargo-bin/
+
+# Sccache
+.sccache/
+
+# Node / pnpm
+node_modules/
+.pnpm-store/
+dist/
+.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# Frontend build output (will be embedded in binary at build time)
+frontend/dist/
+
+# Mise
+.mise/
+.tool-versions.bak
+
+# Snapshots
+.snapshots/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage/
+*.lcov
+*.profraw
+*.profdata
+
+# CI artifacts
+artifacts/
+
+# IMPORTANT: Always commit:
+# - All lockfiles (Cargo.lock, pnpm-lock.yaml, package-lock.json)
+# - All ADRs and decision documents
+# - SECURITY.md, PORTABILITY.md, BLOCKED.md, STATUS.md
