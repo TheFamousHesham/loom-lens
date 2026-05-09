@@ -70,6 +70,13 @@ Categories: `system-package`, `hardcoded-path`, `system-daemon`, `architecture-s
 **Migration cost:** Re-install on new host, substituting the agent user (`loom` on the production VPS, `cc` here) and the project root path.
 **Alternative:** Skip — only refresh hourly via cron. Loses the ability to ad-hoc refresh after the agent edits the allowlist.
 
+## 2026-05-09 — network-config
+
+**What:** `/etc/gai.conf` with `precedence ::ffff:0:0/96 100`, making IPv4 preferred over IPv6 in glibc's resolver order.
+**Why needed:** This Hostinger VM has uneven IPv6 path quality. Two failure modes observed: (a) CloudFront-fronted hosts (`sh.rustup.rs`, `mise.jdx.dev`) hand out v6 addresses across many `2600:9000:XXXX::/48` prefixes; some times out silently (we drop with no RST) before mise's 30s per-fetch budget falls through to v4. (b) The kernel drop log shows packets to `2605:72c0::/32` destinations during v6 connect attempts to hosts that resolve to entirely different addresses — looks like asymmetric routing or some Hostinger-side rewrite. Either way, native v6 cannot be relied on for outbound on this host.
+**Migration cost:** Re-install on new host *only if needed*. The production VPS will likely have clean dual-stack and shouldn't need this. Reversible by `sudo rm /etc/gai.conf` (system falls back to glibc default precedence).
+**Alternative:** Allowlist all v6 ranges any tool's CDN might use (CloudFront, Cloudflare, Fastly, etc. — open-ended) and accept that mise install will sometimes time out anyway because of (b). The gai.conf change sidesteps both issues with one rule. Trade-off: native-v6-only services (rare today) become unreachable.
+
 ---
 
 (Subsequent entries appended below)

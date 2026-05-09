@@ -36,7 +36,9 @@
 #     - $BACKUP_TARGET_HOST (rsync over SSH)
 #   Toolchain (mise install):
 #     - mise-versions.jdx.dev, mise.jdx.dev (mise version registry)
-#     - static.rust-lang.org (Rust toolchain tarballs)
+#     - sh.rustup.rs (rustup bootstrap script that mise invokes for Rust)
+#     - static.rust-lang.org (Rust toolchain tarballs, fetched by rustup-init)
+#     - forge.rust-lang.org (Rust release metadata)
 #     - nodejs.org (Node binaries)
 
 table inet loom_filter {

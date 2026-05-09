@@ -55,7 +55,9 @@ ALLOWED_HOSTS=(
     # Toolchain registries used by `mise install`
     "mise-versions.jdx.dev"
     "mise.jdx.dev"
+    "sh.rustup.rs"
     "static.rust-lang.org"
+    "forge.rust-lang.org"
     "nodejs.org"
 
     # Add backup target if set in environment.
@@ -81,8 +83,18 @@ GITHUB_CIDRS_V6=(
     "2606:50c0::/32"
 )
 
+# CloudFront fronts sh.rustup.rs, mise.jdx.dev, and many other dependency-pull
+# endpoints. CloudFront publishes IPv6 out of `2600:9000::/32` (per the AWS
+# ip-ranges.json file under service: CLOUDFRONT). Without this, mise install
+# of Rust hangs on IPv6 connect timeouts before falling through to IPv4.
+# Refresh annually or whenever a tool starts erroring with "operation timed
+# out" against a CloudFront-hosted host.
+CLOUDFRONT_CIDRS_V6=(
+    "2600:9000::/32"
+)
+
 V4_IPS=("${GITHUB_CIDRS_V4[@]}")
-V6_IPS=("${GITHUB_CIDRS_V6[@]}")
+V6_IPS=("${GITHUB_CIDRS_V6[@]}" "${CLOUDFRONT_CIDRS_V6[@]}")
 
 for host in "${ALLOWED_HOSTS[@]}"; do
     while IFS= read -r ip; do

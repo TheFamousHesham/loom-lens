@@ -3,10 +3,15 @@ rust = "1.85.0"
 node = "22.11.0"
 "npm:pnpm" = "9.15.0"
 
-# Tools
-"cargo:cargo-nextest" = "latest"
+# Tools.
+# `cargo-nextest` and `cargo-deny` are pinned (rather than "latest") because
+# their newest releases require rustc 1.88+ while we pin Rust 1.85.0. Bumping
+# Rust to 1.88+ is itself an architectural change — see ADR 0001 §"Refinements
+# at Checkpoint 1" for the version-coupling rationale. The other three tools
+# track latest because their MSRV is below our Rust pin.
+"cargo:cargo-nextest" = "0.9.95"
 "cargo:cargo-audit" = "latest"
-"cargo:cargo-deny" = "latest"
+"cargo:cargo-deny" = "0.16.4"
 "cargo:cargo-watch" = "latest"
 "cargo:sccache" = "latest"
 

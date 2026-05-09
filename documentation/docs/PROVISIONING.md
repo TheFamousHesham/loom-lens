@@ -17,6 +17,12 @@ Same as Loom main project. Briefly:
 ```bash
 apt update && apt full-upgrade -y
 apt install -y unattended-upgrades crowdsec nftables
+# Build toolchain — required so `mise install` can compile sccache and the
+# four cargo: tools (cargo-nextest, cargo-audit, cargo-deny, cargo-watch)
+# from source. Without these, cargo's build scripts fail with
+# "could not execute process … (os error 2)" because there is no `cc`/`ld`/`make`.
+apt install -y build-essential pkg-config libssl-dev
+# (Rocky/RHEL equivalent: dnf install -y gcc make pkgconf-pkg-config openssl-devel)
 dpkg-reconfigure -plow unattended-upgrades
 
 useradd -m -s /bin/bash loom

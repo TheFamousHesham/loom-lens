@@ -62,7 +62,23 @@ fi
 
 if step "mise-install"; then
     cd "$LOOM_LENS_ROOT"
-    mise install
+    # mise.toml's [env] sets RUSTC_WRAPPER=sccache for everyone working in the
+    # project. On a fresh box, sccache itself hasn't been compiled yet — and
+    # cargo's first invocation would die trying to wrap rustc with a binary
+    # that doesn't exist. mise re-applies its [env] over the parent shell, so
+    # `RUSTC_WRAPPER= mise install` is NOT enough. We work around it by
+    # commenting the line out for this first install, then restoring it.
+    if ! [ -x "$LOOM_LENS_ROOT/.cargo-bin/bin/sccache" ] && \
+       ! command -v sccache >/dev/null 2>&1; then
+        echo "[mise-install] First-pass: temporarily disabling RUSTC_WRAPPER in mise.toml"
+        sed -i.preinstall 's/^RUSTC_WRAPPER = "sccache"$/# RUSTC_WRAPPER = "sccache"  # auto-restored after first mise install/' mise.toml
+        mise install
+        # Restore the line.
+        sed -i 's/^# RUSTC_WRAPPER = "sccache"  # auto-restored after first mise install$/RUSTC_WRAPPER = "sccache"/' mise.toml
+        rm -f mise.toml.preinstall
+    else
+        mise install
+    fi
     mise list
     mark_done "mise-install"
 fi
