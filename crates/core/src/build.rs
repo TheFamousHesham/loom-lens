@@ -11,8 +11,7 @@
 
 use crate::extract::{extract, PendingCall, PendingImport};
 use crate::graph::{
-    CodeGraph, Edge, EdgeKind, GraphId, Language, Node, NodeId, NodeKind, ParseErrorRecord,
-    Summary,
+    CodeGraph, Edge, EdgeKind, GraphId, Language, Node, NodeId, NodeKind, ParseErrorRecord, Summary,
 };
 use crate::parser::{parse_file, ParseError};
 use crate::walk::{discover_files, DiscoveryOpts};
@@ -23,10 +22,7 @@ use std::time::Instant;
 use time::OffsetDateTime;
 
 /// Top-level entry point: walk + parse + extract + build the graph.
-pub fn analyze_repo(
-    repo_root: &Path,
-    opts: &DiscoveryOpts,
-) -> Result<CodeGraph, crate::Error> {
+pub fn analyze_repo(repo_root: &Path, opts: &DiscoveryOpts) -> Result<CodeGraph, crate::Error> {
     let started = Instant::now();
     let files = discover_files(repo_root, opts);
 

@@ -80,10 +80,12 @@ pub fn parse_file(path: &Path) -> Result<ParsedFile, ParseError> {
         .set_language(&grammar)
         .map_err(|e| ParseError::LanguageLoad(language, e.to_string()))?;
 
-    let tree = parser.parse(&source, None).ok_or_else(|| ParseError::Syntax {
-        path: path.to_path_buf(),
-        line: 0,
-    })?;
+    let tree = parser
+        .parse(&source, None)
+        .ok_or_else(|| ParseError::Syntax {
+            path: path.to_path_buf(),
+            line: 0,
+        })?;
 
     if tree.root_node().has_error() {
         let line = tree.root_node().start_position().row as u32 + 1;

@@ -17,7 +17,11 @@ fn parses_python_fixture_with_meaningful_shape() {
 
     // The fixture has 12 .py files (10 modules + __init__ + maybe pyproject not py).
     assert!(g.summary.files >= 10, "files: {:?}", g.summary.files);
-    assert!(g.summary.functions >= 30, "functions: {}", g.summary.functions);
+    assert!(
+        g.summary.functions >= 30,
+        "functions: {}",
+        g.summary.functions
+    );
     assert!(g.summary.languages.contains_key("python"));
 
     // Spot-check that fetch_user shows up.

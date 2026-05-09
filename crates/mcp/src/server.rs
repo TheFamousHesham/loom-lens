@@ -87,12 +87,11 @@ async fn handle(req: Request, state: Arc<Mutex<ServerState>>) -> Option<Response
     }
 }
 
-async fn handle_tool_call(
-    id: Value,
-    params: Value,
-    state: Arc<Mutex<ServerState>>,
-) -> Response {
-    let name = params.get("name").and_then(Value::as_str).unwrap_or_default();
+async fn handle_tool_call(id: Value, params: Value, state: Arc<Mutex<ServerState>>) -> Response {
+    let name = params
+        .get("name")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
     let args = params.get("arguments").cloned().unwrap_or(Value::Null);
     match name {
         "analyze_repo" => analyze_repo_tool(id, args, state).await,
@@ -111,11 +110,7 @@ async fn handle_tool_call(
     }
 }
 
-async fn analyze_repo_tool(
-    id: Value,
-    args: Value,
-    state: Arc<Mutex<ServerState>>,
-) -> Response {
+async fn analyze_repo_tool(id: Value, args: Value, state: Arc<Mutex<ServerState>>) -> Response {
     let path = match args.get("path").and_then(Value::as_str) {
         Some(p) => PathBuf::from(p),
         None => {

@@ -8,7 +8,12 @@ use serde_json::{json, Value};
 /// The four tools as JSON Schema descriptors.
 #[must_use]
 pub fn tool_descriptors() -> Vec<Value> {
-    vec![analyze_repo(), query_graph(), get_function_context(), compare_hashes()]
+    vec![
+        analyze_repo(),
+        query_graph(),
+        get_function_context(),
+        compare_hashes(),
+    ]
 }
 
 fn analyze_repo() -> Value {

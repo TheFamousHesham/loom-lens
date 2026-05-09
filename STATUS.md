@@ -13,9 +13,11 @@ Updated at end of every session and at every checkpoint by the agent. Read this 
 
 ## Current phase
 
-**M1 (Checkpoint 2) — in progress.**
+**Checkpoint 2 — M1: Skeleton + Graph mode + Python parsing — reached.**
 
 Checkpoint 1 closed: user said "Go" on 2026-05-09 after reviewing the bootstrap and design deliverables. ADRs 0001–0004 moved Proposed → Accepted; the four-tool MCP surface, 9-effect taxonomy, "`Result` is not an effect" decision, and tech-stack/distribution choices are locked.
+
+M1 deliverables landed across three commits (workspace skeleton, parser + analyze_repo wiring, and this checkpoint's frontend + tag). `cargo build --release` and `cargo clippy --all-targets -- -D warnings` are clean against rustc 1.85.0; `cargo test --workspace` passes (parser integration test against the Python fixture). End-to-end smoke confirmed: `loom-lens analyze tests/fixtures/python/sample-repo/` prints a working viewer URL; the served SPA fetches `/api/graph/<id>` and renders the structural graph in Cytoscape; `analyze_repo` over MCP stdio returns `graph_id`, `viewer_url`, and a populated summary.
 
 ## What's done
 
@@ -47,16 +49,33 @@ Checkpoint 1 closed: user said "Go" on 2026-05-09 after reviewing the bootstrap 
   - Two effect categories in the TypeScript Foreign fixture were trimmed (a `child_process` invocation and a dynamic-code-evaluation constructor demo) because the dev environment's safety hooks reject the literal source. The omission is documented in-file; the rules and Python fixture cover the same patterns.
 - `documentation/docs/viewer-mockup.md` — text-based wireframes for the three modes plus common chrome and cross-mode interactions. Locks the layout, color palette (with WCAG-AA-conscious choices and redundant patterns for colorblind users), confidence-fill mapping, and selection persistence.
 
+## What's done at M1
+
+- **Cargo workspace** with the six crates from ADR 0001 (`core`, `effects`, `hashing`, `mcp`, `viewer`, `cli`). `cargo build --release` produces a single ~6 MB statically-linked binary at `target/release/loom-lens` with the React/Cytoscape SPA embedded via `rust-embed`.
+- **Tree-sitter Python parser** in `crates/core` walking `function_definition`, `class_definition`, `decorated_definition`, `call`, `import_statement`, and `import_from_statement` AST nodes. Two-pass extraction: per-file walks emit nodes + Contains edges + pending call/import records; a name-index resolution pass turns pending records into Calls and Imports edges across modules.
+- **MCP server** in `crates/mcp` (hand-rolled JSON-RPC 2.0 over stdio, ~250 LOC including envelopes, dispatch, and four tool descriptors mirroring `documentation/docs/api.md`). `initialize` and `tools/list` work; `tools/call analyze_repo` runs the parser on a `spawn_blocking` task and returns `{ graph_id, viewer_url, summary }`. `query_graph`, `get_function_context`, and `compare_hashes` return `MethodNotFound` until M2/M3.
+- **HTTP viewer** (axum 0.7) at `crates/viewer` serving `/healthz`, `/r/:id` (SPA), `/_loom/assets/*` (rust-embedded assets), `/api/graph/:id` (graph JSON), `/api/graph/:id/source/*file` (source files in the graph's repo root). LRU graph cache (8 entries, per ADR 0004).
+- **Vite + React + Cytoscape.js + Zustand** frontend at `frontend/`. Dark-themed shell with three-mode tabs (only Graph active at M1; Effects and Hashes show as disabled with M2/M3 tooltips). Renders nodes by kind (file/module/function/type) with language-coloured fills and edges differentiated by kind (calls solid blue, imports dotted, references dashed). Selection highlights and a footer reflecting parse stats.
+- **CLI** in `crates/cli` with two subcommands: `serve` (MCP stdio + HTTP viewer side-by-side) and `analyze <path>` (one-shot parse, populate cache, print URL, hold the HTTP server until Ctrl-C; `--no-serve` exits after printing for machine consumption).
+- **Tests**: `cargo test --workspace` passes; `crates/core/tests/python_fixture.rs` validates file/function counts, `fetch_user` resolution, and `graph_id` stability against `tests/fixtures/python/sample-repo/`.
+- **`time` pinned to `=0.3.36`** (newer requires rustc 1.88+); **`cargo-deny` and `cargo-nextest` pinned** to versions compatible with Rust 1.85.0 (recorded in ADR 0001).
+- **README** install-from-source steps reordered so `pnpm build` precedes `cargo build` (rust-embed needs the SPA bundle to exist at compile time).
+
 ## What's in progress
 
-Nothing. The checkpoint is reached.
+Nothing. M1 reached.
 
 ## What's next
 
-User review per Checkpoint 1 in `documentation/CHECKPOINTS.md`. Specifically, the user is asked to:
+User review per Checkpoint 2 in `documentation/CHECKPOINTS.md`. The user is asked to:
 
-1. Review the four refined ADRs (0001–0004) and either move each to **Accepted** or push back on specific points. Each refinement is in a clearly-labeled "Refinements at Checkpoint 1" section.
-2. Review ADR 0005 (repo layout) — already marked **Accepted**, since the action it describes was executed. Object via a superseding ADR if the layout is wrong.
+1. Spot-check the graph quality on a real Python repo of the user's choice — `loom-lens analyze /path/to/repo` is enough; the structural shape, function discovery, and call/import edges are what matters at M1.
+2. Approve continuing to M2: TypeScript and Rust parsing, plus the Effects mode based on the rules in `documentation/docs/effect-rules/`.
+
+After review, M2 work begins. The next ADRs (in addition to refining the rules per real-repo testing) will likely cover:
+- TS/Rust parser dispatch (per-language strategy traits in `crates/core`).
+- Effect inference engine architecture (rule registry, evidence carrying, transitive propagation per ADR 0002).
+- Cross-attribute call resolution improvements for Python (currently only the rightmost segment of `client.get(...)` is matched).
 3. Confirm the 9-effect taxonomy and the "Result is not an effect" decision in ADR 0002.
 4. Confirm the four-tool MCP surface and the locked-down shapes in `documentation/docs/api.md`.
 5. Spot-check the effect-rule documents — false negatives (patterns we should detect but missed) become rule corrections; false positives (patterns we shouldn't flag) become exclusion rules.

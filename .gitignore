@@ -32,11 +32,10 @@ node_modules/
 # TypeScript
 *.tsbuildinfo
 
-# Frontend build output (will be embedded in binary at build time).
-# Keep the directory tracked via .gitkeep so rust-embed compiles on a
-# fresh checkout; the actual build artifacts stay ignored.
-frontend/dist/*
-!frontend/dist/.gitkeep
+# Frontend build output (embedded in the binary at build time by rust-embed).
+# crates/viewer/build.rs creates this directory on fresh checkouts so the
+# compile-time scan doesn't fail before `pnpm build` has run.
+frontend/dist/
 
 # Mise
 .mise/

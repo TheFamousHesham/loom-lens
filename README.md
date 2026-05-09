@@ -10,7 +10,7 @@ Loom Lens is a Claude Code plugin (MCP server) plus a browser-based viewer that 
 
 Loom Lens supports Python, TypeScript/JavaScript, and Rust at launch.
 
-> **Status: pre-alpha.** This README describes the project's intent. Working code lands at Milestone 1. See `STATUS.md` for current state.
+> **Status: v0.1.0-alpha.1 — M1 (Skeleton + Graph mode + Python parsing) is live.** TypeScript/Rust parsing and Effects mode arrive at v0.2.0-alpha.1 (M2); Hash mode at v0.3.0-alpha.1 (M3); v0.1.0 (no longer alpha) at M4 with packaging. See `STATUS.md` for the current state and `documentation/CHECKPOINTS.md` for the milestone plan.
 
 ---
 
@@ -24,15 +24,27 @@ The project is also a research probe for a larger language design called Loom. L
 
 ## Install
 
-> Not yet published. Install instructions land at v0.1.0 (Milestone 4). Until then, build from source:
+> Not yet published to package registries. That lands at v0.1.0 (Milestone 4). Until then, build from source:
 
 ```bash
 git clone https://github.com/TheFamousHesham/loom-lens
 cd loom-lens
-mise install        # installs Rust, Node, etc.
+
+# Toolchain (Rust 1.85.0, Node 22.11, pnpm 9.15, plus a few cargo: helpers).
+mise install
+
+# Build the frontend FIRST so rust-embed bakes the SPA into the binary.
+( cd frontend && pnpm install --frozen-lockfile && pnpm build )
+
+# Build the binary. Single statically-linked artefact at target/release/loom-lens.
 cargo build --release
-cd frontend && pnpm install && pnpm build
+
+# Try it on the Python fixture.
+./target/release/loom-lens analyze tests/fixtures/python/sample-repo
+# Open the printed http://127.0.0.1:7000/r/<id> URL in a browser.
 ```
+
+If you don't have `mise`, install it from <https://mise.jdx.dev/> first. On Debian/Ubuntu the build prereqs are `build-essential pkg-config libssl-dev`; on Rocky/RHEL `gcc make pkgconf-pkg-config openssl-devel`.
 
 When v0.1.0 ships:
 

@@ -51,7 +51,9 @@ enum Command {
 async fn main() -> Result<()> {
     // Logs go to stderr so stdout stays clean for JSON-RPC.
     tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
+        .with_env_filter(
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")),
+        )
         .with_writer(std::io::stderr)
         .init();
 
@@ -63,7 +65,10 @@ async fn main() -> Result<()> {
 }
 
 async fn run_serve(bind: &str) -> Result<()> {
-    info!(version = VERSION, bind, "loom-lens MCP server + viewer starting");
+    info!(
+        version = VERSION,
+        bind, "loom-lens MCP server + viewer starting"
+    );
     let viewer_state = ViewerState::new();
     let viewer_base = format!("http://{bind}");
     let server_state = Arc::new(Mutex::new(ServerState {

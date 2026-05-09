@@ -66,10 +66,7 @@ async fn serve_asset(Path(path): Path<String>) -> Response {
     }
 }
 
-async fn api_graph(
-    State(state): State<ViewerState>,
-    Path(graph_id): Path<String>,
-) -> Response {
+async fn api_graph(State(state): State<ViewerState>, Path(graph_id): Path<String>) -> Response {
     let id = GraphId(graph_id);
     match state.get(&id) {
         Some(graph) => Json(graph).into_response(),
