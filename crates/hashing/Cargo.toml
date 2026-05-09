@@ -1,0 +1,17 @@
+[package]
+name = "loom-lens-hashing"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "AST normalization and BLAKE3 content-addressed hashing for Loom Lens."
+
+[dependencies]
+loom-lens-core = { workspace = true }
+blake3.workspace = true
+hex.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+tracing.workspace = true

@@ -1,0 +1,92 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/core",
+    "crates/effects",
+    "crates/hashing",
+    "crates/mcp",
+    "crates/viewer",
+    "crates/cli",
+]
+
+[workspace.package]
+version = "0.1.0-alpha.1"
+edition = "2021"
+rust-version = "1.85.0"
+license = "MIT"
+authors = ["Hesham Mashhour <hesham@betterbrainlab.org>"]
+repository = "https://github.com/TheFamousHesham/loom-lens"
+homepage = "https://github.com/TheFamousHesham/loom-lens"
+description = "See your codebase as a graph: structure, effects, and content-addressed identity."
+readme = "README.md"
+categories = ["development-tools", "visualization"]
+keywords = ["mcp", "graph", "effects", "tree-sitter", "claude"]
+
+# Shared dependency versions. Crates depend via `{ workspace = true }`.
+[workspace.dependencies]
+# Async / concurrency
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "io-util", "io-std", "signal", "net", "time", "sync"] }
+futures = "0.3"
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+# Graph
+petgraph = "0.6"
+indexmap = { version = "2", features = ["serde"] }
+
+# Tree-sitter (Python only at M1; TS/Rust grammars added at M2)
+tree-sitter = "0.22"
+tree-sitter-python = "0.21"
+
+# HTTP server
+axum = { version = "0.7", features = ["macros"] }
+tower = "0.5"
+tower-http = { version = "0.5", features = ["cors", "trace", "fs"] }
+hyper = "1"
+
+# Frontend embedding
+rust-embed = { version = "8", features = ["axum"] }
+mime_guess = "2"
+
+# Hashing (for graph_id and BLAKE3 of normalized AST at M3)
+blake3 = "1"
+hex = "0.4"
+
+# CLI
+clap = { version = "4", features = ["derive", "wrap_help"] }
+
+# Filesystem walking
+walkdir = "2"
+ignore = "0.4"
+
+# Time. Pinned strict on 0.3.36 because 0.3.47+ require rustc 1.88
+# while we pin 1.85 (see ADR 0001 Refinements). Bump alongside Rust.
+time = { version = "=0.3.36", features = ["serde", "formatting", "macros"] }
+
+# Workspace-internal
+loom-lens-core = { path = "crates/core" }
+loom-lens-effects = { path = "crates/effects" }
+loom-lens-hashing = { path = "crates/hashing" }
+loom-lens-mcp = { path = "crates/mcp" }
+loom-lens-viewer = { path = "crates/viewer" }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = "symbols"
+
+[profile.release-debug]
+inherits = "release"
+strip = "none"
+debug = true

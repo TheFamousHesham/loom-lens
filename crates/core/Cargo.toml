@@ -1,0 +1,27 @@
+[package]
+name = "loom-lens-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Tree-sitter parsing and code-graph extraction for Loom Lens."
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+tree-sitter.workspace = true
+tree-sitter-python.workspace = true
+petgraph.workspace = true
+indexmap.workspace = true
+walkdir.workspace = true
+ignore.workspace = true
+blake3.workspace = true
+hex.workspace = true
+time.workspace = true
+
+[dev-dependencies]
+anyhow.workspace = true

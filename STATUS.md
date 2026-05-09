@@ -6,16 +6,16 @@ Updated at end of every session and at every checkpoint by the agent. Read this 
 
 ## Last updated
 
-**Timestamp:** 2026-05-08
-**Session:** 1
+**Timestamp:** 2026-05-09
+**Session:** 1 (continuing)
 **Agent:** Claude (Opus 4.7, 1M context)
-**Current commit:** pending — first checkpoint commit not yet authored at the moment of this write
+**Current commit:** advancing through M1; see `git log`
 
 ## Current phase
 
-**Checkpoint 1 — Design lock — reached.**
+**M1 (Checkpoint 2) — in progress.**
 
-Awaiting user review per `documentation/CHECKPOINTS.md` § Checkpoint 1.
+Checkpoint 1 closed: user said "Go" on 2026-05-09 after reviewing the bootstrap and design deliverables. ADRs 0001–0004 moved Proposed → Accepted; the four-tool MCP surface, 9-effect taxonomy, "`Result` is not an effect" decision, and tech-stack/distribution choices are locked.
 
 ## What's done
 

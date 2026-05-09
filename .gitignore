@@ -21,17 +21,22 @@ target/
 # Sccache
 .sccache/
 
-# Node / pnpm
+# Node / pnpm. (Generic `dist/` removed — the only `dist/` we have is
+# frontend/dist/, handled explicitly further down so the .gitkeep stays
+# tracked. Other tools' build outputs would appear in tool-specific
+# subdirectories already covered.)
 node_modules/
 .pnpm-store/
-dist/
 .vite/
 
 # TypeScript
 *.tsbuildinfo
 
-# Frontend build output (will be embedded in binary at build time)
-frontend/dist/
+# Frontend build output (will be embedded in binary at build time).
+# Keep the directory tracked via .gitkeep so rust-embed compiles on a
+# fresh checkout; the actual build artifacts stay ignored.
+frontend/dist/*
+!frontend/dist/.gitkeep
 
 # Mise
 .mise/

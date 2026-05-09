@@ -1,8 +1,8 @@
 # 0001 — Tech Stack: Rust Backend, React+Cytoscape Frontend
 
 **Date:** Pre-Checkpoint 1
-**Status:** Proposed
-**Reviewed at checkpoint:** 1 (pending)
+**Status:** Accepted (2026-05-09)
+**Reviewed at checkpoint:** 1 ✓
 
 ## Context
 
