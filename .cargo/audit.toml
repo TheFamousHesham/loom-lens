@@ -1,0 +1,16 @@
+# cargo-audit configuration. Read by `cargo audit` at workspace root.
+# Each ignore must carry the reasoning so the next reviewer can decide
+# whether the carve-out still applies.
+
+[advisories]
+ignore = [
+  # RUSTSEC-2026-0009 — `time` <= 0.3.46 has a stack-exhaustion DoS
+  # in its time-string *parsing* path. Fix is `time` >= 0.3.47, which
+  # raises MSRV to rustc 1.88; we pin Rust 1.85.0 in mise.toml until a
+  # future ADR bumps the toolchain (see ADR 0001 §"Refinements at
+  # Checkpoint 1"). All Loom Lens uses of `time` are in the *formatting*
+  # path (`OffsetDateTime::now_utc().format(Rfc3339)`) — we never feed
+  # user-controlled strings into the parser, so the vulnerability cannot
+  # be reached. Revisit this entry when we bump Rust.
+  "RUSTSEC-2026-0009",
+]

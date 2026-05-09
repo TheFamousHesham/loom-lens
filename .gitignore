@@ -14,8 +14,11 @@ target/
 **/*.rs.bk
 *.pdb
 
-# Cargo
-.cargo/
+# Cargo. We track .cargo/audit.toml (config — small, source-of-truth for
+# cargo-audit ignores); everything else under .cargo/ is build/install
+# state and stays ignored.
+.cargo/*
+!.cargo/audit.toml
 .cargo-bin/
 
 # Sccache
