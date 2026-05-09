@@ -7,12 +7,16 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 
+pub mod build;
+pub mod extract;
 pub mod graph;
 pub mod parser;
 pub mod walk;
 
+pub use build::analyze_repo;
 pub use graph::{
-    CodeGraph, Edge, EdgeKind, GraphId, Language, Node, NodeId, NodeKind, Span, Summary,
+    CodeGraph, Edge, EdgeKind, GraphId, Language, Node, NodeId, NodeKind, ParseErrorRecord, Span,
+    Summary,
 };
 pub use parser::{parse_file, ParseError, ParsedFile};
 pub use walk::{discover_files, DiscoveryOpts};
