@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.85.0
         with:
           components: clippy, rustfmt
 
@@ -83,7 +83,7 @@ jobs:
         run: pnpm build
 
       - name: Test
-        run: pnpm test --run
+        run: pnpm test
 
   security:
     name: Security checks
@@ -92,12 +92,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Push events to main set base == HEAD which TruffleHog rejects; we run
+      # the diff scan only on PRs, where base/head are always distinct. The
+      # local pre-commit hook covers the push side.
       - name: Detect secrets in source
+        if: github.event_name == 'pull_request'
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha }}
           extra_args: --only-verified
 
       - name: Dependency review
