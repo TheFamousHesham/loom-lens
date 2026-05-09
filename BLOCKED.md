@@ -62,6 +62,7 @@ Do not delete entries. Mark as `resolved` and append the resolution.
 
 ## Still open after this round
 
-- **Anthropic spend cap of $10.** User to set in console; agent cannot.
-- **API key rotation** (recommended, not required). User can revoke and reissue at any point; update `.env`, no code change needed.
+- ~~**Anthropic spend cap of $10.**~~ — RESOLVED by user choice (2026-05-09): autocharge is off and the account is funded with $10 only, so an explicit per-key spend cap isn't needed; the account-level balance is itself the cap.
+- ~~**API key rotation.**~~ — RESOLVED by user choice (2026-05-09): treated as a development-only key with the same $10 ceiling; rotation deferred until the project graduates to a production posture.
 - **Production VPS provisioning** (`documentation/docs/PROVISIONING.md`). The dev workstation work above does not replace the production hardening; M3/M4 deploy still needs a dedicated VPS.
+- **Mise tool installation.** Egress allowlist initially blocked `mise-versions.jdx.dev`; allowlist extended on 2026-05-09 with `mise-versions.jdx.dev`, `mise.jdx.dev`, `static.rust-lang.org`, `nodejs.org`. `mise install` now runs; full install (Rust + Node + cargo tools) takes several minutes.

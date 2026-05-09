@@ -52,6 +52,12 @@ ALLOWED_HOSTS=(
     "dl.fedoraproject.org"
     "mirrors.fedoraproject.org"
 
+    # Toolchain registries used by `mise install`
+    "mise-versions.jdx.dev"
+    "mise.jdx.dev"
+    "static.rust-lang.org"
+    "nodejs.org"
+
     # Add backup target if set in environment.
 )
 

@@ -34,6 +34,10 @@
 #     - dl.fedoraproject.org, mirrors.fedoraproject.org (EPEL)
 #     - 1.1.1.1, 9.9.9.9 (DNS)
 #     - $BACKUP_TARGET_HOST (rsync over SSH)
+#   Toolchain (mise install):
+#     - mise-versions.jdx.dev, mise.jdx.dev (mise version registry)
+#     - static.rust-lang.org (Rust toolchain tarballs)
+#     - nodejs.org (Node binaries)
 
 table inet loom_filter {
 
