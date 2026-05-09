@@ -59,8 +59,24 @@ if [[ -n "${BACKUP_TARGET_HOST:-}" ]]; then
     ALLOWED_HOSTS+=("$BACKUP_TARGET_HOST")
 fi
 
-V4_IPS=()
-V6_IPS=()
+# GitHub publishes its full IP ranges at https://api.github.com/meta. We
+# embed the stable CIDRs covering git/web/hooks here so SSH and HTTPS both
+# land on allowlisted addresses regardless of which round-robin DNS hit
+# `getent` returned. Updated 2026-05-08 against api.github.com/meta; check
+# annually or when github.com starts erroring.
+GITHUB_CIDRS_V4=(
+    "192.30.252.0/22"
+    "185.199.108.0/22"
+    "140.82.112.0/20"
+    "143.55.64.0/20"
+)
+GITHUB_CIDRS_V6=(
+    "2a0a:a440::/29"
+    "2606:50c0::/32"
+)
+
+V4_IPS=("${GITHUB_CIDRS_V4[@]}")
+V6_IPS=("${GITHUB_CIDRS_V6[@]}")
 
 for host in "${ALLOWED_HOSTS[@]}"; do
     while IFS= read -r ip; do
