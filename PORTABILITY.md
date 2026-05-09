@@ -42,4 +42,34 @@ Categories: `system-package`, `hardcoded-path`, `system-daemon`, `architecture-s
 
 ---
 
+## 2026-05-08 — system-daemon
+
+**What:** systemd unit at `/etc/systemd/system/loom-lens-egress.service` (one-shot loader for the egress allowlist; tracks `RemainAfterExit=yes`).
+**Why needed:** Without this, the egress rules are lost on reboot — `nftables.service` is inactive on this Rocky 9 box and there is no `/etc/nftables.conf`. Loading from a dedicated unit keeps the egress lifecycle independent of firewalld and of any future host-level nftables tooling.
+**Migration cost:** Re-install on new host: `sudo cp systemd/loom-lens-egress.service /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable loom-lens-egress.service`. The unit's `ExecStartPost` resolves the refresh script from either `/opt/loom-lens/scripts/refresh-egress.sh` (production VPS path) or `/home/cc/ProjectAlpha/scripts/refresh-egress.sh` (this dev workstation), so the unit is portable across both layouts.
+**Alternative:** Enable the system's `nftables.service` and add an include in `/etc/nftables.conf`. Slightly less explicit; the dedicated unit makes the dependency on `refresh-egress.sh` (which populates the IP set) visible.
+
+## 2026-05-08 — network-config
+
+**What:** Edited `/etc/resolv.conf` to put nftables-allowlist-permitted DNS resolvers first (1.1.1.1, 1.0.0.1, 9.9.9.9). Removed the cloud-init defaults (153.92.2.6, 8.8.8.8, 8.8.4.4) since they are not on the allowlist and would otherwise cause every lookup to time out before falling through to a working resolver. Backup at `/etc/resolv.conf.preloomlens-2026-05-08`.
+**Why needed:** The egress allowlist intentionally restricts UDP 53 to a curated set of resolvers; resolv.conf has to point only at those.
+**Migration cost:** On any new host: same edit. On a fresh production VPS the resolv.conf is empty enough that this is one paste. **Cloud-init may regenerate `/etc/resolv.conf` on reboot on this DigitalOcean instance** — if that happens, re-edit, or set `manage_resolv_conf: false` in `/etc/cloud/cloud.cfg.d/99-loom-lens.cfg` to make it persistent.
+**Alternative:** Use `systemd-resolved` with a fixed upstream and let it own resolv.conf. Equivalent end state but adds a second daemon to reason about.
+
+## 2026-05-08 — system-daemon
+
+**What:** `/etc/cron.d/loom-lens-egress` (hourly invocation of `refresh-egress.sh` under root).
+**Why needed:** nftables sets are populated from hostname → IP resolution, and CDN IPs rotate; without periodic refresh the allowlist drifts and "allowed" hosts start failing.
+**Migration cost:** Re-install on new host with the path in the cron line pointing at the project root on that host.
+**Alternative:** A systemd timer instead of cron. Equivalent.
+
+## 2026-05-08 — system-daemon
+
+**What:** `/etc/sudoers.d/loom-lens-egress` (NOPASSWD entry letting the `cc` user invoke `refresh-egress.sh`).
+**Why needed:** Allows the agent's user to trigger an out-of-band refresh (e.g., after adding a hostname to the project's allowlist) without being prompted for a password.
+**Migration cost:** Re-install on new host, substituting the agent user (`loom` on the production VPS, `cc` here) and the project root path.
+**Alternative:** Skip — only refresh hourly via cron. Loses the ability to ad-hoc refresh after the agent edits the allowlist.
+
+---
+
 (Subsequent entries appended below)

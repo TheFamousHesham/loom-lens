@@ -1,0 +1,30 @@
+# Loom Lens egress allowlist persistence unit
+#
+# Loads the nftables egress allowlist (`/etc/nftables.d/loom-lens-egress.nft`)
+# and populates the IP sets at boot. Coexists with firewalld and any other
+# nftables tables — our rules live in their own `loom_filter` table.
+#
+# Install on a host:
+#   sudo cp loom-lens-egress.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable loom-lens-egress.service
+#
+# This unit is for the egress allowlist. The agent itself runs from
+# `loom-lens-agent.service` (a separate unit).
+
+[Unit]
+Description=Loom Lens egress allowlist (nftables)
+Documentation=file:///etc/nftables.d/loom-lens-egress.nft
+After=network-online.target firewalld.service
+Wants=network-online.target
+Before=loom-lens-agent.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/nftables.d/loom-lens-egress.nft
+ExecStartPost=/bin/bash -c 'PATH_TO_REFRESH=$(command -v /opt/loom-lens/scripts/refresh-egress.sh /home/cc/ProjectAlpha/scripts/refresh-egress.sh 2>/dev/null | head -1); test -n "$PATH_TO_REFRESH" && "$PATH_TO_REFRESH" || exit 0'
+ExecStop=/usr/sbin/nft delete table inet loom_filter
+
+[Install]
+WantedBy=multi-user.target

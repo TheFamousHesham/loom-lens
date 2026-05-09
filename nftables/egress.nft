@@ -66,8 +66,11 @@ table inet loom_filter {
         ip6 daddr { 2606:4700:4700::1111, 2620:fe::fe } udp dport 53 accept
         ip6 daddr { 2606:4700:4700::1111, 2620:fe::fe } tcp dport 53 accept
 
-        # NTP for time sync.
-        udp dport 123 ip daddr { 0.pool.ntp.org, 1.pool.ntp.org } accept
+        # NTP for time sync. UDP 123 to anywhere — NTP is not a meaningful
+        # exfiltration vector and pinning a hostname pool here would require
+        # a separate dynamic IP set that the refresh script doesn't yet
+        # maintain. chronyd / systemd-timesyncd handle their own server lists.
+        udp dport 123 accept
 
         # ICMP for path MTU discovery and basic connectivity.
         ip protocol icmp icmp type { destination-unreachable, time-exceeded, echo-request, echo-reply } accept
@@ -99,7 +102,7 @@ table inet loom_filter {
 
         # ICMP basic.
         ip protocol icmp icmp type { destination-unreachable, time-exceeded, echo-request, echo-reply } accept
-        ip6 nexthdr icmpv6 icmpv6 type { destination-unreachable, packet-too-big, time-exceeded, echo-request, echo-reply, neighbor-solicitation, neighbor-advertisement, router-advertisement } accept
+        ip6 nexthdr icmpv6 icmpv6 type { destination-unreachable, packet-too-big, time-exceeded, echo-request, echo-reply, nd-neighbor-solicit, nd-neighbor-advert, nd-router-advert } accept
 
         limit rate 10/minute log prefix "loom-input-drop: " level info
         counter drop
