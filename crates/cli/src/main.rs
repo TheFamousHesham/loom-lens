@@ -109,9 +109,30 @@ async fn run_analyze(path: PathBuf, bind: &str, no_serve: bool) -> Result<()> {
     viewer_state.put(graph);
 
     println!(
-        "analyzed: {} files, {} functions, {} modules in {} ms",
-        summary.files, summary.functions, summary.modules, summary.elapsed_ms
+        "analyzed: {} files, {} functions, {} modules, {} types in {} ms",
+        summary.files, summary.functions, summary.modules, summary.types, summary.elapsed_ms
     );
+    let imp_pct = if summary.imports_total > 0 {
+        100 * summary.imports_resolved / summary.imports_total
+    } else {
+        0
+    };
+    let call_pct = if summary.calls_total > 0 {
+        100 * summary.calls_resolved / summary.calls_total
+    } else {
+        0
+    };
+    println!(
+        "resolution: {}/{} imports ({}%), {}/{} calls ({}%)",
+        summary.imports_resolved, summary.imports_total, imp_pct,
+        summary.calls_resolved, summary.calls_total, call_pct,
+    );
+    if !summary.parse_errors.is_empty() {
+        println!(
+            "parse errors: {} files (graph still built from parseable subset)",
+            summary.parse_errors.len()
+        );
+    }
     println!("graph_id:   {graph_id}");
     println!("viewer_url: {viewer_url}");
 

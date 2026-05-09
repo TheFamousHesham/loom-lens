@@ -13,11 +13,58 @@ Updated at end of every session and at every checkpoint by the agent. Read this 
 
 ## Current phase
 
-**Checkpoint 2 — M1: Skeleton + Graph mode + Python parsing — reached.**
+**Checkpoint 2 — M1 polish round 2 — reached.**
 
-Checkpoint 1 closed: user said "Go" on 2026-05-09 after reviewing the bootstrap and design deliverables. ADRs 0001–0004 moved Proposed → Accepted; the four-tool MCP surface, 9-effect taxonomy, "`Result` is not an effect" decision, and tech-stack/distribution choices are locked.
+The first M1 round (tagged `v0.1.0-alpha.1`) was rejected at user review because the call-resolver collapsed every `.method()` call into the bare-name index (175× false positives on `api.py::get`), only 3 of ~119 internal psf/requests imports resolved (filesystem-derived module names didn't match Python's import paths), and the rendered graph was a hairball. This round (tagged `v0.1.0-alpha.2`) addresses each point with measurements rather than feel.
 
-M1 deliverables landed across three commits (workspace skeleton, parser + analyze_repo wiring, and this checkpoint's frontend + tag). `cargo build --release` and `cargo clippy --all-targets -- -D warnings` are clean against rustc 1.85.0; `cargo test --workspace` passes (parser integration test against the Python fixture). End-to-end smoke confirmed: `loom-lens analyze tests/fixtures/python/sample-repo/` prints a working viewer URL; the served SPA fetches `/api/graph/<id>` and renders the structural graph in Cytoscape; `analyze_repo` over MCP stdio returns `graph_id`, `viewer_url`, and a populated summary.
+### Resolver fixes
+
+- **Call-kind discrimination (`crates/core/src/extract.rs`).** `PendingCall` is now an enum: `Bare { name }` for `foo()` (resolves to top-level functions in the same module or via the file's imports table) and `SelfMethod { method, enclosing_class }` for `self.foo()` (resolves to a method on the enclosing class via a per-class method index). All other attribute calls are dropped — `client.get(...)`, `response.get(...)`, `module.foo(...)` produce no edge until M2 adds receiver-type tracking. **Verified:** `api.py::get` now reports 0 callers on psf/requests (was 175); confirmed by AST: every `.get(...)` site in requests is a method call, none bare. `cargo test -p loom-lens-core` passes.
+- **Canonical Python module names (`crates/core/src/build.rs::discover_python_packages`).** Walks `__init__.py` boundaries from each file's directory upward to compute the import path. `src/requests/api.py` → `requests.api`; `src/requests/__init__.py` → `requests`. `__init__.py` files are flagged so the relative-import resolver doesn't pop their canonical name's last component (the bug that cost most of the resolution pass before).
+- **Relative-import depth (`extract.rs::handle_import_from`).** tree-sitter Python wraps `from .X` with a `relative_import` whose text reads `.X`; the dot-counting loop now drives off the literal text of `module_name`, handling 1, 2, 3+ dots uniformly.
+- **Per-file imports table.** Successful imports populate `file_id → local_name → target_file`. Bare calls fall back to this table when the same-module lookup misses, so `from .errors import foo` followed by `foo()` resolves correctly.
+
+### Resolver measurements (psf/requests, 119 internal imports per AST)
+
+| metric                          | before round 1 | after round 1 | after round 2 |
+| ------------------------------- | -------------- | ------------- | ------------- |
+| internal imports resolved (%)   | n/a            | 3 / 119 (3%)  | **295 / 296 (99%)** |
+| `api.py::get` callers           | n/a            | 175 (all bogus) | **0** (correct) |
+| total `Calls` edges             | n/a            | 1094          | 300 (after dropping unresolvable attribute calls) |
+| `cargo clippy -D warnings`      | clean          | clean         | clean |
+
+The 99%/119 (or equivalently, 295/296 by per-name count) clears the user's ≥85% bar. The single unresolved import is `from requests.packages.urllib3.poolmanager import PoolManager` in `tests/test_requests.py`, which targets `requests.packages.urllib3.poolmanager` — a vendored submodule that doesn't exist as a Python file in the v3+ requests source (urllib3 is now an external dependency, not vendored). Correctly unresolved.
+
+### UX changes (`frontend/`)
+
+- **Layout chooser.** Sparse views (≤200 visible elements) use cose force-directed; dense views use dagre layered. Either way, post-layout `cy.fit(visibleElements, 40)` ignores hidden nodes.
+- **Default detail level.** Modules are 1:1 with files and always hidden. Classes and functions are hidden by default, revealed by `show classes` / `show functions` checkboxes in the topbar. The default view is files + import edges only — for psf/requests that's 22 file rectangles connected by 27 import edges, readable at a glance.
+- **Hide-tests filter.** Default ON. Path glob: contains `/tests/` or `/test/`, or basename starts with `test_`. Doesn't false-positive on substrings (`attestation/...` is not a test).
+- **Per-kind shapes**: file = rectangle, module = round-rectangle (hidden by default), function = ellipse, type/class = hexagon.
+- **Label fade.** Cytoscape `min-zoomed-font-size: 6` — labels render only at zoom levels where they'd be readable.
+- **Topbar metrics row** now also shows resolved/total imports + calls and the type count.
+
+### Adversarial inputs (each documented as expected behaviour)
+
+| input                               | result                                                                                |
+| ----------------------------------- | ------------------------------------------------------------------------------------- |
+| (a) Python file with syntax error   | recorded in `summary.parse_errors`; graph builds from the parseable subset            |
+| (b) directory that isn't a git repo | works — analyzer doesn't require git                                                  |
+| (c) symlink loop                    | `ignore` crate's walker doesn't follow symlinks; loop never traversed                 |
+| (d) namespace package (no `__init__.py`) | canonical-name fallback uses the path-as-dots form; graph builds without errors    |
+
+### Other deliverables
+
+- `documentation/docs/screenshots/requests-default.png` plus three companion views committed. The default view shows the requests source files (`sessions.py`, `auth.py`, `api.py`, `models.py`, `adapters.py`, `exceptions.py`, etc.) connected as a single cluster; `setup.py` and `docs/_themes/...` correctly isolated at the bottom (they don't import requests).
+- `README.md` install steps fixed: added `mise trust .` (mise refuses to read an untrusted config on a fresh clone — a real onboarding paper-cut). Verified by `git clone` into `/tmp/clean-clone-test` and walking the README from top: `mise trust .` → `mise install` → `pnpm install --frozen-lockfile && pnpm build` → `cargo build --release` → `loom-lens analyze tests/fixtures/python/sample-repo --no-serve` succeeds and prints a viewer URL.
+- The Python fixture has only one internal import (`from .errors import raise_if_invalid` in `net.py`); the resolver gets 1/1 = 100%. Other 17 imports are stdlib/external. Output clean.
+
+### Milestone artefacts
+
+- Git tag `v0.1.0-alpha.2` on the round-2 commit; `v0.1.0-alpha.1` is left in place for archeology.
+- Single statically-linked binary `target/release/loom-lens`, ~6 MB, with the React/Cytoscape SPA embedded via rust-embed.
+- `cargo build --release` clean against rustc 1.85.0; `cargo clippy --workspace --all-targets -- -D warnings` clean; `cargo test --workspace` passes.
+- CI green on the latest push (link in commit body).
 
 ## What's done
 

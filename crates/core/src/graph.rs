@@ -160,6 +160,16 @@ pub struct Summary {
     pub functions: u32,
     /// Total modules discovered.
     pub modules: u32,
+    /// Total types/classes discovered.
+    pub types: u32,
+    /// Number of `Calls` edges that the resolver successfully wired up.
+    pub calls_resolved: u32,
+    /// Total call sites recorded by the extractor (resolved + unresolved).
+    pub calls_total: u32,
+    /// Number of `Imports` records that resolved into edges.
+    pub imports_resolved: u32,
+    /// Total import records recorded by the extractor (resolved + unresolved).
+    pub imports_total: u32,
     /// Per-language file counts.
     pub languages: IndexMap<String, u32>,
     /// Wallclock spent in `analyze_repo`.

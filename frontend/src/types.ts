@@ -67,6 +67,11 @@ export interface Summary {
   files: number;
   functions: number;
   modules: number;
+  types: number;
+  calls_resolved: number;
+  calls_total: number;
+  imports_resolved: number;
+  imports_total: number;
   languages: Record<string, number>;
   elapsed_ms: number;
   parse_errors: ParseErrorRecord[];

@@ -31,6 +31,9 @@ git clone https://github.com/TheFamousHesham/loom-lens
 cd loom-lens
 
 # Toolchain (Rust 1.85.0, Node 22.11, pnpm 9.15, plus a few cargo: helpers).
+# `mise trust` is required on a fresh clone — mise refuses to read .mise.toml
+# / mise.toml from a directory it hasn't seen before.
+mise trust .
 mise install
 
 # Build the frontend FIRST so rust-embed bakes the SPA into the binary.
