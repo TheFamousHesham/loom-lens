@@ -17,8 +17,7 @@
 
 use crate::extract::{extract, CallKind, PendingCall, PendingImport};
 use crate::graph::{
-    CodeGraph, Edge, EdgeKind, GraphId, Language, Node, NodeId, NodeKind, ParseErrorRecord,
-    Summary,
+    CodeGraph, Edge, EdgeKind, GraphId, Language, Node, NodeId, NodeKind, ParseErrorRecord, Summary,
 };
 use crate::parser::{parse_file, ParseError};
 use crate::walk::{discover_files, DiscoveryOpts};
@@ -29,10 +28,7 @@ use std::time::Instant;
 use time::OffsetDateTime;
 
 /// Top-level entry point: walk + parse + extract + canonicalise + resolve.
-pub fn analyze_repo(
-    repo_root: &Path,
-    opts: &DiscoveryOpts,
-) -> Result<CodeGraph, crate::Error> {
+pub fn analyze_repo(repo_root: &Path, opts: &DiscoveryOpts) -> Result<CodeGraph, crate::Error> {
     let started = Instant::now();
     let files = discover_files(repo_root, opts);
 
@@ -109,10 +105,7 @@ pub fn analyze_repo(
 /// first directory that is NOT a package; everything below joins with `.` to
 /// form the canonical name. Files outside any package fall back to the
 /// path-as-dots form (e.g. `setup.py` → `setup`).
-pub fn discover_python_packages(
-    repo_root: &Path,
-    files: &[PathBuf],
-) -> HashMap<PathBuf, String> {
+pub fn discover_python_packages(repo_root: &Path, files: &[PathBuf]) -> HashMap<PathBuf, String> {
     let mut out = HashMap::new();
     for rel in files {
         let ext = rel.extension().and_then(|s| s.to_str());
@@ -279,10 +272,7 @@ impl NameIndex {
                     // Only top-level functions (not class methods) go in the
                     // module's function index. We tell them apart by the
                     // qualified_name format — class methods carry "<file>::<Class>.<method>".
-                    if let NodeKind::Function {
-                        qualified_name, ..
-                    } = &child.kind
-                    {
+                    if let NodeKind::Function { qualified_name, .. } = &child.kind {
                         let is_method = qualified_name
                             .split_once("::")
                             .map(|(_, after)| after.contains('.'))
@@ -355,7 +345,11 @@ fn resolve_imports(
         let Some(file_canonical) = index.file_to_module.get(&pi.from_file) else {
             continue;
         };
-        let is_init = index.file_is_init.get(&pi.from_file).copied().unwrap_or(false);
+        let is_init = index
+            .file_is_init
+            .get(&pi.from_file)
+            .copied()
+            .unwrap_or(false);
         let target_module = compute_target_module(file_canonical, is_init, pi.level, &pi.module);
 
         let target_file_id = if let Some(ref imported_name) = pi.name {
@@ -390,13 +384,11 @@ fn resolve_imports(
 
         // Per-file imports table — keyed by the LOCALLY-bound name (alias if
         // present, else the imported name, else the leftmost module segment).
-        let local_alias = pi.alias.clone().or_else(|| pi.name.clone()).unwrap_or_else(|| {
-            target_module
-                .split('.')
-                .next()
-                .unwrap_or("")
-                .to_string()
-        });
+        let local_alias = pi
+            .alias
+            .clone()
+            .or_else(|| pi.name.clone())
+            .unwrap_or_else(|| target_module.split('.').next().unwrap_or("").to_string());
         if !local_alias.is_empty() {
             per_file_imports
                 .entry(pi.from_file)
@@ -586,10 +578,7 @@ mod tests {
             "requests.X"
         );
         // `from . import X` inside `requests/__init__.py` → `requests`
-        assert_eq!(
-            compute_target_module("requests", true, 1, ""),
-            "requests"
-        );
+        assert_eq!(compute_target_module("requests", true, 1, ""), "requests");
         // `from .. import X` inside `pkg/sub/__init__.py` (canonical "pkg.sub") → `pkg`
         assert_eq!(compute_target_module("pkg.sub", true, 2, ""), "pkg");
     }

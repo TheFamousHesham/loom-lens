@@ -514,10 +514,7 @@ mod tests {
             python_module_name(&PathBuf::from("src/api/users.py")),
             "src.api.users"
         );
-        assert_eq!(
-            python_module_name(&PathBuf::from("src/__init__.py")),
-            "src"
-        );
+        assert_eq!(python_module_name(&PathBuf::from("src/__init__.py")), "src");
         assert_eq!(python_module_name(&PathBuf::from("a.py")), "a");
     }
 }

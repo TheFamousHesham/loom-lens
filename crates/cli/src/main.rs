@@ -124,8 +124,12 @@ async fn run_analyze(path: PathBuf, bind: &str, no_serve: bool) -> Result<()> {
     };
     println!(
         "resolution: {}/{} imports ({}%), {}/{} calls ({}%)",
-        summary.imports_resolved, summary.imports_total, imp_pct,
-        summary.calls_resolved, summary.calls_total, call_pct,
+        summary.imports_resolved,
+        summary.imports_total,
+        imp_pct,
+        summary.calls_resolved,
+        summary.calls_total,
+        call_pct,
     );
     if !summary.parse_errors.is_empty() {
         println!(
